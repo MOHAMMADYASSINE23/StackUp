@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Define the connection cache type
 type MongooseCache = {
@@ -12,11 +12,11 @@ declare global {
   var mongoose: MongooseCache | undefined;
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-
 // Initialize the cache on the global object to persist across hot reloads in development
-const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
+const cached: MongooseCache = global.mongoose || {
+  conn: null,
+  promise: null,
+};
 
 if (!global.mongoose) {
   global.mongoose = cached;
@@ -25,9 +25,18 @@ if (!global.mongoose) {
 /**
  * Establishes a connection to MongoDB using Mongoose.
  * Caches the connection to prevent multiple connections during development hot reloads.
- * @returns Promise resolving to the Mongoose instance
  */
 async function connectDB(): Promise<typeof mongoose> {
+  // Read the environment variable when the function is called
+  const MONGODB_URI = process.env.MONGODB_URI;
+
+  // Validate MongoDB URI exists
+  if (!MONGODB_URI) {
+    throw new Error(
+      "Please define the MONGODB_URI environment variable inside .env or .env.local"
+    );
+  }
+
   // Return existing connection if available
   if (cached.conn) {
     return cached.conn;
@@ -35,26 +44,30 @@ async function connectDB(): Promise<typeof mongoose> {
 
   // Return existing connection promise if one is in progress
   if (!cached.promise) {
-    // Validate MongoDB URI exists
-    if (!MONGODB_URI) {
-      throw new Error(
-        'Please define the MONGODB_URI environment variable inside .env.local'
-      );
-    }
     const options = {
-      bufferCommands: false, // Disable Mongoose buffering
+      bufferCommands: false,
     };
 
-    // Create a new connection promise
-    cached.promise = mongoose.connect(MONGODB_URI!, options).then((mongoose) => {
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI, options);
   }
 
   try {
     // Wait for the connection to establish
     cached.conn = await cached.promise;
-  } catch (error) {
+  } catch (error: any) {
+    console.error("========== MONGODB ERROR ==========");
+    console.error(error);
+
+    if (error?.cause) {
+      console.error("CAUSE:");
+      console.error(error.cause);
+    }
+
+    if (error?.reason) {
+      console.error("REASON:");
+      console.error(error.reason);
+    }
+
     // Reset promise on error to allow retry
     cached.promise = null;
     throw error;
