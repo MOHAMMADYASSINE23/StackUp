@@ -1,61 +1,52 @@
 import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
-import { IEvent } from "@/database";
+import { type IEvent } from "@/database";
 import { cacheLife } from "next/cache";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 const Page = async () => {
-    'use cache';
-    cacheLife('hours');
-    
-    let events: IEvent[] = [];
-    let hasError = false;
+  "use cache";
+  cacheLife("hours");
 
-    try {
-        const response = await fetch(`${BASE_URL}/api/events`);
-        
-        if (!response.ok) {
-            // Changed from console.error to avoid Next.js error screen overlay
-            console.warn(`Backend API returned an error status: ${response.status}`);
-            hasError = true;
-        } else {
-            const data = await response.json();
-            events = data.events || [];
-        }
-    } catch (error) {
-        console.warn("Failed to reach the API endpoint:", error);
-        hasError = true;
+  let events: IEvent[] = [];
+  let hasError = false;
+
+  try {
+    const response = await fetch(new URL("/api/events", BASE_URL));
+    if (!response.ok) {
+      hasError = true;
+    } else {
+      const data = await response.json();
+      events = Array.isArray(data.events) ? data.events : [];
     }
+  } catch {
+    hasError = true;
+  }
 
-    return (
-        <section>
-            <h1 className="text-center">The Hub for Every Dev <br /> Event You Can't Miss</h1>
-            <p className="text-center mt-5">Hackathons, Meetups, and Conferences, All in One Place</p>
+  return (
+    <section>
+      <h1 className="text-center">The Hub for Every Dev Event You Can&apos;t Miss</h1>
+      <p className="text-center mt-5">Hackathons, Meetups, and Conferences, All in One Place</p>
 
-            <ExploreBtn />
+      <ExploreBtn />
 
-            <div className="mt-20 space-y-7">
-                <h3>Featured Events</h3>
-
-                <ul className="events">
-                    {hasError ? (
-                        <p className="text-red-500 bg-red-50 p-4 rounded">
-                            ⚠️ Unable to load events right now. Please check your terminal console for the backend API error logs.
-                        </p>
-                    ) : events && events.length > 0 ? (
-                        events.map((event: IEvent) => (
-                            <li key={event.title} className="list-none">
-                                <EventCard {...event} />
-                            </li>
-                        ))
-                    ) : (
-                        <p className="text-muted-foreground">No events found.</p>
-                    )}
-                </ul>
-            </div>
-        </section>
-    );
+      <div id="events" className="mt-20 space-y-7">
+        <h2>Featured Events</h2>
+        <ul className="events">
+          {hasError ? (
+            <li className="list-none text-red-500 bg-red-50 p-4 rounded" role="status">
+              Events are temporarily unavailable. Please try again later.
+            </li>
+          ) : events.length > 0 ? (
+            events.map((event) => <li key={event.slug} className="list-none"><EventCard {...event} /></li>)
+          ) : (
+            <li className="list-none text-muted-foreground">No events found yet.</li>
+          )}
+        </ul>
+      </div>
+    </section>
+  );
 };
 
 export default Page;
