@@ -75,6 +75,10 @@ npm audit --omit=dev
 
 GitHub Actions runs these checks for pushes and pull requests to \`main\`. The CI build uses placeholder environment values and does not send real email or connect to a production database.
 
+## Security audit status
+
+The CI production-dependency audit currently reports **0 vulnerabilities**. The full dependency audit still reports **5 high-severity findings in development/lint tooling**, in the `braces` → `micromatch` → `fast-glob` → Next.js ESLint configuration chain. npm's suggested forced fix downgrades `eslint-config-next` to a different major version, so it was not applied blindly. Keep this tooling chain under review and resolve it through a compatible lint-toolchain migration.
+
 ## Current limitations
 
 - Bookings are identified by email and event, not by a signed-in user account.
