@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import connectDB from '@/lib/mongodb';
-import Event, { IEvent } from '@/database/event.model';
+import Event from '@/database/event.model';
 
 // Define route params type for type safety
 type RouteParams = {
@@ -15,7 +15,7 @@ type RouteParams = {
  * Fetches a single events by its slug
  */
 export async function GET(
-  req: NextRequest,
+  _request: NextRequest,
   { params }: RouteParams
 ): Promise<NextResponse> {
   try {
@@ -68,9 +68,9 @@ export async function GET(
         );
       }
 
-      // Return generic error with error message
+      // Keep internal error details out of public responses.
       return NextResponse.json(
-        { message: 'Failed to fetch events', error: error.message },
+        { message: 'Failed to fetch events' },
         { status: 500 }
       );
     }
