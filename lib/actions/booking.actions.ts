@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import connectDB from "@/lib/mongodb";
 import Booking from "@/database/booking.model";
 import Event from "@/database/event.model";
+import { isValidEmail, normalizeEmail } from "@/lib/validation";
 
 type BookingInput = {
   email: string;
@@ -12,7 +13,7 @@ type BookingInput = {
 };
 
 export async function createBooking({ email, eventId, slug }: BookingInput) {
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
 
   if (
     !normalizedEmail ||
