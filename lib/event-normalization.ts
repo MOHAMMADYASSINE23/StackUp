@@ -1,9 +1,25 @@
 export function normalizeDate(dateString: string): string {
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) {
-    throw new Error("Invalid date format");
+  const match = dateString.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
+    throw new Error("Invalid date format. Use YYYY-MM-DD");
   }
-  return date.toISOString().split("T")[0];
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  // Date.UTC normalizes overflow dates, so compare the parts to reject dates
+  // such as February 31 instead of silently shifting them into another month.
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    throw new Error("Invalid date format. Use a real calendar date in YYYY-MM-DD format");
+  }
+
+  return dateString.trim();
 }
 
 export function normalizeTime(timeString: string): string {
