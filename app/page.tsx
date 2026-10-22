@@ -1,13 +1,13 @@
 import ExploreBtn from "@/components/ExploreBtn";
 import EventCard from "@/components/EventCard";
 import { type IEvent } from "@/database";
-import { cacheLife } from "next/cache";
+import { connection } from "next/server";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 const Page = async () => {
-  "use cache";
-  cacheLife("hours");
+  // Load live database-backed data at request time, not during static generation.
+  await connection();
 
   let events: IEvent[] = [];
   let hasError = false;
