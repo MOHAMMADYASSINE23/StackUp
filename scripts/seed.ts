@@ -12,8 +12,8 @@ async function seed() {
 
     const seededEvents = events.map((event) => ({
       ...event,
-      description: \`\${event.title} is a sample technology event for the StackUp demo. Verify the official event website for current details.\`,
-      overview: \`Explore the topics and community around \${event.title}.\`,
+      description: event.title + " is a sample technology event for the StackUp demo. Verify the official event website for current details.",
+      overview: "Explore the topics and community around " + event.title + ".",
       venue: event.location,
       mode: event.location.includes("Hybrid") ? "hybrid" : "offline",
       audience: "Developers, Students, and Tech Professionals",
@@ -36,7 +36,7 @@ async function seed() {
       );
     }
 
-    console.log(\`Seeded or updated \${seededEvents.length} demo events without deleting existing records.\`);
+    console.log("Seeded or updated " + seededEvents.length + " demo events without deleting existing records.");
   } catch (error) {
     console.error("Seeding failed. Check the database connection and seed data.");
     if (process.env.NODE_ENV === "development" && error instanceof Error) {
