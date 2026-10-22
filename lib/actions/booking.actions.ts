@@ -18,7 +18,7 @@ export async function createBooking({ email, eventId, slug }: BookingInput) {
   if (
     !normalizedEmail ||
     normalizedEmail.length > 254 ||
-    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) ||
+    !isValidEmail(normalizedEmail) ||
     !Types.ObjectId.isValid(eventId) ||
     !slug.trim()
   ) {
