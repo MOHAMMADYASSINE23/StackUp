@@ -73,6 +73,11 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > MAX_IMAGE_SIZE + 256 * 1024) {
+    return NextResponse.json({ message: "Request payload is too large." }, { status: 413 });
+  }
+
   try {
     const formData = await request.formData();
     const file = formData.get("image");
