@@ -1,7 +1,7 @@
 import React from 'react'
 import {notFound} from "next/navigation";
 import {IEvent} from "@/database";
-import {getSimilarEventsBySlug} from "@/lib/actions/event.actions";
+import { getBookingCount, getSimilarEventsBySlug } from "@/lib/actions/event.actions";
 import Image from "next/image";
 import BookEvent from "@/components/BookEvent";
 import EventCard from "@/components/EventCard";
@@ -68,7 +68,7 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
 
     if(!description) return notFound();
 
-    const bookings = 10;
+    const bookings = await getBookingCount(String(event._id));
 
     const similarEvents: IEvent[] = await getSimilarEventsBySlug(slug);
 
