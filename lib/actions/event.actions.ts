@@ -1,4 +1,4 @@
-"use server";
+import "server-only";
 
 import connectDB from "@/lib/mongodb";
 import Event, { type IEvent } from "@/database/event.model";
