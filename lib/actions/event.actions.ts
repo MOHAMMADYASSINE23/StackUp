@@ -2,6 +2,8 @@
 
 import connectDB from "@/lib/mongodb";
 import Event, { type IEvent } from "@/database/event.model";
+import Booking from "@/database/booking.model";
+import { Types } from "mongoose";
 
 export async function getSimilarEventsBySlug(slug: string): Promise<IEvent[]> {
   try {
@@ -25,5 +27,17 @@ export async function getSimilarEventsBySlug(slug: string): Promise<IEvent[]> {
   } catch {
     console.error("Failed to load similar events.");
     return [];
+  }
+}
+
+export async function getBookingCount(eventId: string): Promise<number> {
+  if (!Types.ObjectId.isValid(eventId)) return 0;
+
+  try {
+    await connectDB();
+    return await Booking.countDocuments({ eventId });
+  } catch {
+    console.error("Failed to load event booking count.");
+    return 0;
   }
 }
