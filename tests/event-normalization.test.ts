@@ -28,4 +28,7 @@ test("normalizes a parseable date to ISO calendar format", () => {
 
 test("rejects unparseable dates", () => {
   assert.throws(() => normalizeDate("not-a-date"), /Invalid date format/);
+  assert.throws(() => normalizeDate("2026-02-31"), /real calendar date/);
+  assert.throws(() => normalizeDate("2026-13-01"), /real calendar date/);
+  assert.throws(() => normalizeDate("10/23/2026"), /YYYY-MM-DD/);
 });
