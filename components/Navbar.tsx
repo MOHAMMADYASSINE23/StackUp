@@ -1,24 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 
-const Navbar = () => {
-    return (
-        <header>
-            <nav>
-                <Link href='/' className="logo">
-                    <Image src="/icons/logo.png" alt="logo" width={24} height={24} />
+const Navbar = () => (
+  <header>
+    <nav>
+      <Link href="/" className="logo" aria-label="StackUp home">
+        <Image src="/icons/logo.png" alt="" width={24} height={24} />
+        <p>StackUp</p>
+      </Link>
+      <ul>
+        <li><Link href="/">Home</Link></li>
+        <li><Link href="/#events">Events</Link></li>
+      </ul>
+    </nav>
+  </header>
+);
 
-                    <p>DevEvent</p>
-                </Link>
-
-                <ul>
-                    <Link href="/">Home</Link>
-                    <Link href="/">Events</Link>
-                    <Link href="/">Create Event</Link>
-                </ul>
-            </nav>
-        </header>
-    )
-}
-
-export default Navbar
+export default Navbar;
