@@ -8,7 +8,6 @@ type MongooseCache = {
 
 // Extend the global object to include our mongoose cache
 declare global {
-  // eslint-disable-next-line no-var
   var mongoose: MongooseCache | undefined;
 }
 
@@ -54,18 +53,9 @@ async function connectDB(): Promise<typeof mongoose> {
   try {
     // Wait for the connection to establish
     cached.conn = await cached.promise;
-  } catch (error: any) {
-    console.error("========== MONGODB ERROR ==========");
-    console.error(error);
-
-    if (error?.cause) {
-      console.error("CAUSE:");
-      console.error(error.cause);
-    }
-
-    if (error?.reason) {
-      console.error("REASON:");
-      console.error(error.reason);
+  } catch (error: unknown) {
+    if (process.env.NODE_ENV === "development" && error instanceof Error) {
+      console.error("MongoDB connection failed:", error.message);
     }
 
     // Reset promise on error to allow retry

@@ -7,57 +7,47 @@ import events from "@/lib/constants";
 
 async function seed() {
   try {
-    console.log("MONGODB_URI =", process.env.MONGODB_URI);
-
     await connectDB();
-
-    console.log("✅ Connected to MongoDB");
-
-    await Event.deleteMany({});
-
-    console.log("🗑 Old events removed");
+    console.log("Connected to MongoDB.");
 
     const seededEvents = events.map((event) => ({
       ...event,
-
-      description: `${event.title} is one of the biggest technology conferences of the year. Join experts, developers, and industry leaders for talks, networking, and hands-on workshops.`,
-
-      overview: `Join us at ${event.title} to discover the latest trends and technologies.`,
-
+      description: event.title + " is a sample technology event for the StackUp demo. Verify the official event website for current details.",
+      overview: "Explore the topics and community around " + event.title + ".",
       venue: event.location,
-
       mode: event.location.includes("Hybrid") ? "hybrid" : "offline",
-
       audience: "Developers, Students, and Tech Professionals",
-
-      organizer: "StackUp",
-
+      organizer: "StackUp Demo",
       agenda: [
         "Registration",
         "Opening Keynote",
         "Technical Sessions",
-        "Lunch Break",
         "Networking",
         "Closing Ceremony",
       ],
-
-      tags: [
-        "Technology",
-        "Conference",
-        "Networking",
-      ],
+      tags: ["Technology", "Conference", "Networking"],
     }));
 
-    await Event.insertMany(seededEvents);
+    for (const event of seededEvents) {
+      await Event.updateOne(
+        { slug: event.slug },
+        { $set: event },
+        { upsert: true, runValidators: true },
+      );
+    }
 
-    console.log(`🎉 ${seededEvents.length} events inserted successfully!`);
-
-    process.exit(0);
+    console.log("Seeded or updated " + seededEvents.length + " demo events without deleting existing records.");
   } catch (error) {
-    console.error("❌ Seeding failed:");
-    console.error(error);
-    process.exit(1);
+    console.error("Seeding failed. Check the database connection and seed data.");
+    if (process.env.NODE_ENV === "development" && error instanceof Error) {
+      console.error(error.message);
+    }
+    process.exitCode = 1;
+  } finally {
+    // Exit explicitly because the MongoDB connection can keep the process alive.
+    const mongoose = await import("mongoose");
+    await mongoose.default.disconnect().catch(() => undefined);
   }
 }
 
-seed();
+void seed();

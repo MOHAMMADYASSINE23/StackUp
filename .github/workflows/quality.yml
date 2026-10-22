@@ -1,0 +1,51 @@
+name: Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Typecheck, test, lint, and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/stackup_ci
+      NEXT_PUBLIC_BASE_URL: http://127.0.0.1:3000
+      EVENT_ADMIN_API_KEY: ci-placeholder-secret-not-for-production
+      NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY: ci-public-key
+      NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT: https://ik.imagekit.io/example
+      IMAGEKIT_PRIVATE_KEY: ci-private-key-placeholder
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Report all dependency audit findings
+        run: |
+          npm audit --json > npm-audit.json || true
+          node -e 'const a = require("./npm-audit.json"); console.log("Full dependency audit:", JSON.stringify(a.metadata?.vulnerabilities || a.error || {}, null, 2))'
+      - name: Audit production dependencies
+        run: npm audit --omit=dev
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Unit tests
+        run: npm test
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
