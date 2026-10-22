@@ -3,6 +3,9 @@ import EventCard from "@/components/EventCard";
 import { type IEvent } from "@/database";
 import { connection } from "next/server";
 
+// This page needs live event data and intentionally renders on demand.
+export const instant = false;
+
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 const Page = async () => {
