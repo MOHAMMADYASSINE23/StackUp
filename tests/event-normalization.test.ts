@@ -18,7 +18,7 @@ test("accepts valid 24-hour times and pads values", () => {
 
 test("rejects invalid clock hours and minutes", () => {
   for (const value of ["13:00 PM", "13:00 AM", "0:30 PM", "24:00", "12:60", "9:5", "not a time"]) {
-    assert.throws(() => normalizeTime(value), undefined, `expected ${value} to be rejected`);
+    assert.throws(() => normalizeTime(value), Error, `expected ${value} to be rejected`);
   }
 });
 
